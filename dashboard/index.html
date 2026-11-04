@@ -55,8 +55,8 @@
         <button onclick="runAct2Teleport()" id="btn-act2" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition flex items-center gap-1.5">
           <span>🔄 Act 2: Suspend &amp; Teleport</span>
         </button>
-        <button onclick="runAct3Burst()" id="btn-act3" class="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-sm transition flex items-center gap-1.5">
-          <span>💥 Act 3: 10-Trader Burst</span>
+        <button onclick="runAct3SandboxAudit()" id="btn-act3" class="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-sm transition flex items-center gap-1.5">
+          <span>🛡️ Act 3: Sandbox Code Audit</span>
         </button>
         <button onclick="resetDemo()" class="px-3 py-2 rounded-xl text-xs font-semibold border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">
           Reset
@@ -153,12 +153,12 @@
         <!-- Standard GKE Resource / Pod Allocation Bar -->
         <div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-3.5 flex flex-col gap-2">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Dedicated Pods Provisioned (1 Pod = 1 Session)</span>
-            <span class="font-mono font-bold text-amber-400" id="std-pod-count">1 Pod (1 GiB RAM Pinned)</span>
+            <span class="font-bold uppercase tracking-wider text-[var(--muted-foreground)]">On-the-Fly Code Isolation (Regular Pod / <code class="font-mono">runc</code>)</span>
+            <span class="font-mono font-bold text-amber-400" id="std-pod-count">Shared Host Kernel</span>
           </div>
           <div class="flex flex-wrap gap-1.5" id="std-pods-grid">
             <div class="px-2.5 py-1 rounded-lg text-xs font-mono border border-amber-500/40 bg-amber-500/10 text-amber-400">
-              pod/trader-1 (10.40.2.19) • RUNNING (Idle)
+              pod/trader-1 (10.40.2.19) • Host Kernel 6.6.x-cos Exposed
             </div>
           </div>
         </div>
@@ -398,7 +398,6 @@
 
       logEvent(`ACT 1 RACE STARTED for ticker ${sym}: Standard GKE Cold Pod vs. Agent Substrate Actor`, 'text-blue-400 font-bold');
 
-      // Check if live backend server.py is running
       try {
         const res = await fetch(`/api/race?symbol=${sym}`, { method: 'POST' });
         if (res.ok) {
@@ -496,29 +495,31 @@
       activeTimers.push(t1, t2);
     }
 
-    function runAct3Burst() {
+    function runAct3SandboxAudit() {
       clearTimers();
-      document.getElementById('status-banner').textContent = 'Act 3: Multiplexing 10 Concurrent Traders across 2 Warm WorkerPool Pods...';
-      logEvent(`💥 [MARKET OPEN BURST] 10 Traders arrived simultaneously!`, 'text-purple-400 font-bold');
+      const sym = selectedTicker;
+      document.getElementById('status-banner').textContent = `Act 3: Executing On-the-Fly Python Quant Script (/run_quant_script) & Auditing Kernel Isolation...`;
+      logEvent(`🛡️ [ACT 3: ON-THE-FLY CODE AUDIT] Trader submitted dynamic Python script: compute ${sym} Sharpe Ratio + probe os.uname(), /dev/kmsg, and AF_PACKET raw socket.`, 'text-purple-400 font-bold');
 
+      // Left side: Regular GKE Pod (shared host kernel)
       const stdGrid = document.getElementById('std-pods-grid');
-      stdGrid.innerHTML = '';
-      for (let i = 1; i <= 10; i++) {
-        const chip = document.createElement('div');
-        chip.className = 'px-2 py-1 rounded text-xs font-mono border border-amber-500/40 bg-amber-500/10 text-amber-400';
-        chip.textContent = `pod/trader-${i} (1 GiB)`;
-        stdGrid.appendChild(chip);
-      }
-      document.getElementById('std-pod-count').textContent = '10 Pods (10 GiB RAM Pinned • 5× Cost)';
-      document.getElementById('std-idle-state').textContent = '10 Pods Pinned (90% Idle)';
+      stdGrid.innerHTML = `
+        <div class="w-full p-2.5 rounded-lg text-xs font-mono border border-rose-500/40 bg-rose-500/10 text-rose-300 space-y-1">
+          <div>📈 <strong>Quant Output:</strong> ${sym} Sharpe Ratio = 1.84 (4.2ms)</div>
+          <div>❌ <strong>os.uname().release:</strong> Linux 6.6.44+ (Real GKE Host Node Kernel Exposed!)</div>
+          <div>⚠️ <strong>Syscall Path:</strong> Untrusted Python hits host Linux kernel table directly</div>
+        </div>
+      `;
+      document.getElementById('std-pod-count').textContent = '⚠️ Host Kernel Exposed (runc)';
 
-      document.getElementById('sub-density-metric').textContent = 'Density: 10 Stateful Actors on 2 Pods (5:1 Multiplier • 80% Cost Saved)';
-      document.getElementById('slot-1-state').textContent = 'MULTIPLEXING (5 Actors)';
-      document.getElementById('slot-1-actor').textContent = 'Active: trader-5 | 4 Hibernated in GCS';
-      document.getElementById('slot-2-state').textContent = 'MULTIPLEXING (5 Actors)';
-      document.getElementById('slot-2-actor').textContent = 'Active: trader-10 | 4 Hibernated in GCS';
+      // Right side: Agent Substrate (gVisor user-space kernel)
+      document.getElementById('sub-density-metric').textContent = '🛡️ Isolated in gVisor User-Space Sentry (runsc)';
+      document.getElementById('slot-1-state').textContent = 'SANDBOXED (gVisor 4.4.0)';
+      document.getElementById('slot-1-actor').textContent = `Sharpe=1.84 | /dev/kmsg & AF_PACKET BLOCKED by Sentry`;
+      document.getElementById('slot-2-state').textContent = 'SANDBOXED (gVisor 4.4.0)';
+      document.getElementById('slot-2-actor').textContent = `No KSA token mounted | Host kernel hidden`;
 
-      logEvent(`✅ [Agent Substrate] Multiplexed 10 stateful Trader Actors across 2 WorkerPool Pods (5:1 density, 80% compute reduction vs. Standard GKE).`, 'text-emerald-400 font-bold');
+      logEvent(`✅ [Agent Substrate / gVisor] On-the-fly Python computed ${sym} Sharpe Ratio (1.84) in 4.2ms. Kernel seen: Linux 4.4.0 (gVisor runsc Sentry). /dev/kmsg & AF_PACKET raw socket probes BLOCKED ([Errno 1] Operation not permitted)!`, 'text-emerald-400 font-bold');
     }
 
     function resetDemo() {
@@ -529,7 +530,7 @@
       ['std-bar1', 'std-bar2', 'std-bar3', 'sub-bar1', 'sub-bar2', 'sub-bar3'].forEach(id => {
         document.getElementById(id).style.width = '0%';
       });
-      ['std-step1-time', 'std-step2-time', 'std-step3-time', 'sub-step1-time', 'sub-step2-time', 'sub-step3-time'].forEach(id => {
+      ['std-step1-time', 'std-step2-time', 'std-step3-time', 'sub-step1-time', 'sub-step3-time', 'sub-step2-time'].forEach(id => {
         document.getElementById(id).textContent = '—';
       });
       document.getElementById('std-stock-content').classList.add('hidden');
