@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stock-analyst-cold-pod
+  namespace: default
+  labels:
+    app: stock-analyst-standard
+spec:
+  runtimeClassName: gvisor
+  containers:
+  - name: agent
+    image: IMAGE_PLACEHOLDER
+    ports:
+    - containerPort: 8080
+    readinessProbe:
+      httpGet:
+        path: /readyz
+        port: 8080
+      initialDelaySeconds: 0
+      periodSeconds: 1
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
