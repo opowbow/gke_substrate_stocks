@@ -8,6 +8,7 @@ GREEN = "\033[32m"
 CYAN = "\033[36m"
 YELLOW = "\033[33m"
 MAGENTA = "\033[35m"
+RED = "\033[31m"
 RESET = "\033[0m"
 
 
@@ -20,16 +21,16 @@ def banner(title: str):
 
 
 def race_1_cold_pod_vs_substrate(router_url: str):
-  banner("ACT 1: SESSION SPIN-UP RACE (Standard GKE Cold Pod vs. Agent Substrate)")
+  banner("ACT 1: SESSION SPIN-UP RACE (Regular GKE Cold Pod vs. Agent Substrate)")
 
-  # --- 1A. Standard GKE Sandboxed Pod (Cold Start) ---
-  print(f"\n{YELLOW}[Left Side: Standard GKE]{RESET} Creating gVisor Pod & waiting for /readyz...")
+  # --- 1A. Regular GKE Pod (Cold Start) ---
+  print(f"\n{YELLOW}[Left Side: Regular GKE]{RESET} Creating Pod & waiting for /readyz...")
   sh("kubectl delete pod stock-analyst-cold-pod --ignore-not-found --wait=true >/dev/null 2>&1 || true")
   t0 = time.perf_counter()
   sh("kubectl apply -f manifests/standard-gke-pod.yaml >/dev/null")
   sh("kubectl wait --for=condition=Ready pod/stock-analyst-cold-pod --timeout=120s >/dev/null")
   cold_spinup_s = time.perf_counter() - t0
-  print(f"  ⏱️  Standard GKE Pod Ready in: {BOLD}{YELLOW}{cold_spinup_s:.2f}s{RESET}")
+  print(f"  ⏱️  Regular GKE Pod Ready in: {BOLD}{YELLOW}{cold_spinup_s:.2f}s{RESET}")
 
   # --- 1B. Agent Substrate Actor on Warm WorkerPool ---
   print(f"\n{GREEN}[Right Side: Agent Substrate]{RESET} Waking Actor 'trader-alice' on WorkerPool for NVDA...")
@@ -107,7 +108,35 @@ def race_2_pod_reuse_and_teleportation(router_url: str, alice_first_ip: str, ali
   print(f"     • In-Memory Portfolio:    {GREEN}{s2['portfolio_history']}{RESET} (Both NVDA & GOOGL preserved in RAM without a DB!)")
 
 
+def race_3_on_the_fly_code_isolation(router_url: str):
+  banner("ACT 3: ON-THE-FLY CODE EXECUTION & SANDBOX ISOLATION AUDIT")
+
+  print(f"\n{CYAN}[Prompt Injection Simulation]{RESET} Trader submits on-the-fly Python quant formula (/run_quant_script):")
+  print('  "Calculate NVDA Sharpe Ratio AND probe host kernel, /dev/kmsg, raw sockets & KSA token"')
+
+  payload = json.dumps({"symbol": "NVDA"}).encode("utf-8")
+  req_quant = urllib.request.Request(
+      f"{router_url}/run_quant_script",
+      data=payload,
+      headers={
+          "Content-Type": "application/json",
+          "ate-target-actor": "trading-desk/trader-alice",
+      },
+      method="POST",
+  )
+  with urllib.request.urlopen(req_quant, timeout=30) as resp:
+    qdata = json.loads(resp.read().decode())
+
+  audit = qdata["sandbox_audit"]
+  print(f"\n  📈 {BOLD}On-the-Fly Quant Output:{RESET}  NVDA Sharpe Ratio = {BOLD}{GREEN}{qdata['sharpe_ratio']}{RESET} (executed in {qdata['exec_ms']}ms)")
+  print(f"  🛡️  {BOLD}Sandbox Kernel Seen:{RESET}      {GREEN}{audit['isolation_boundary']}{RESET}")
+  print(f"  🔒 {BOLD}/dev/kmsg Kernel Probe:{RESET}   {audit['kmsg_probe']}")
+  print(f"  🔒 {BOLD}AF_PACKET Raw Socket:{RESET}     {audit['raw_socket_probe']}")
+  print(f"  🔒 {BOLD}KSA Token Mounted:{RESET}        {audit['ksa_token_mounted']}")
+
+
 if __name__ == "__main__":
   ROUTER_URL = "http://localhost:8080"
   first_ip, secret = race_1_cold_pod_vs_substrate(ROUTER_URL)
   race_2_pod_reuse_and_teleportation(ROUTER_URL, first_ip, secret)
+  race_3_on_the_fly_code_isolation(ROUTER_URL)
