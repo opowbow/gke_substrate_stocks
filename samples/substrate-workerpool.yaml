@@ -12,7 +12,7 @@ spec:
   replicas: 2
   sandboxClasses:
     - name: gvisor
-  workerImage: us-docker.pkg.dev/ate-release/ate/ateom-gvisor:v0.1.0
+  workerImage: ghcr.io/agent-substrate/substrate/ateworker:v1.0.0
   template:
     resources:
       requests:
