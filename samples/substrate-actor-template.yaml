@@ -29,4 +29,4 @@ sandboxConfig:
 snapshotConfig:
   onPause: SNAPSHOT_CONTENT_SCOPE_FULL
   onCommit: SNAPSHOT_CONTENT_SCOPE_FULL
-  storageLocation: gs://ate-snapshots-op-agents-001-us-central1-a/stock-analyst/
+  storageLocation: gs://ate-snapshots-op-agents-001-gke-substrate-001-us-west1-c/stock-analyst/
