@@ -1,0 +1,24 @@
+# Sample populated WorkerPool manifest
+# Tip: Check your cluster's exact workerImage and substrate-version with:
+#   kubectl get ds -n ate-system -l app=atelet -o jsonpath='{.items[0].metadata.labels.ate\.dev/substrate-version}'
+apiVersion: ate.dev/v1alpha1
+kind: WorkerPool
+metadata:
+  name: stock-analyst-pool
+  namespace: default
+  labels:
+    workload: stock-analyst
+spec:
+  replicas: 2
+  sandboxClass: gvisor
+  workerImage: us-docker.pkg.dev/ate-release/ate/ateom-gvisor:v0.1.0
+  template:
+    nodeSelector:
+      ate.dev/substrate-version: "v0.1.0"
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
