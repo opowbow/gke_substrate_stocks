@@ -14,8 +14,6 @@ spec:
     - name: gvisor
   workerImage: us-docker.pkg.dev/ate-release/ate/ateom-gvisor:v0.1.0
   template:
-    nodeSelector:
-      ate.dev/substrate-version: "v0.1.0"
     resources:
       requests:
         cpu: "500m"
