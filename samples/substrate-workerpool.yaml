@@ -1,7 +1,7 @@
 # Sample populated WorkerPool manifest
 # Tip: Check your cluster's exact workerImage and substrate-version with:
 #   kubectl get ds -n ate-system -l app=atelet -o jsonpath='{.items[0].metadata.labels.ate\.dev/substrate-version}'
-apiVersion: ate.dev/v1alpha1
+apiVersion: ate.dev/v1
 kind: WorkerPool
 metadata:
   name: stock-analyst-pool
