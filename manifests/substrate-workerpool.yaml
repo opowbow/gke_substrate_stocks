@@ -7,7 +7,6 @@ metadata:
     workload: stock-analyst
 spec:
   replicas: 2
-  sandboxClass: gvisor
   workerImage: ghcr.io/agent-substrate/substrate/ateom-gvisor:v1.0.0
   template:
     nodeSelector:
