@@ -6,7 +6,7 @@ workerSelector:
     workload: stock-analyst
 containers:
 - name: agent
-  image: IMAGE_PLACEHOLDER
+  image: us-central1-docker.pkg.dev/op-agents-001/agent-demo/stock-analyst:v1
   env:
   - name: PORT
     value: "8080"
@@ -26,4 +26,4 @@ sandboxConfig:
 snapshotConfig:
   onPause: SNAPSHOT_CONTENT_SCOPE_FULL
   onCommit: SNAPSHOT_CONTENT_SCOPE_FULL
-  storageLocation: gs://BUCKET_PLACEHOLDER/stock-analyst/
+  storageLocation: gs://ate-snapshots-op-agents-001-gke-substrate-001-us-west1-c/stock-analyst/
