@@ -11,8 +11,6 @@ spec:
     - name: gvisor
   workerImage: ghcr.io/agent-substrate/substrate/ateom-gvisor:v1.0.0
   template:
-    nodeSelector:
-      ate.dev/substrate-version: v1.0.0
     resources:
       requests:
         cpu: "500m"
