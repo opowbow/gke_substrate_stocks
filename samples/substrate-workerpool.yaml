@@ -11,7 +11,7 @@ metadata:
 spec:
   replicas: 2
   sandboxClasses:
-    - class: gvisor
+    - name: gvisor
   workerImage: us-docker.pkg.dev/ate-release/ate/ateom-gvisor:v0.1.0
   template:
     nodeSelector:
