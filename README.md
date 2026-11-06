@@ -65,12 +65,10 @@ gcloud artifacts repositories create agent-demo \
     --repository-format=docker \
     --location=${REGION} || true
 
-gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
-
-cd agent
-docker build -t ${IMAGE} .
-docker push ${IMAGE}
-cd ..
+gcloud artifacts repositories create agent-demo \
+    --repository-format=docker \
+    --location=${REGION} || true
+gcloud builds submit --tag ${IMAGE} ./agent
 ```
 
 #### 2. Install Agent Substrate on GKE Standard
