@@ -81,7 +81,7 @@ Replace the placeholder values in the YAML files under manifests/ with your envi
 
 - IMAGE_PLACEHOLDER (in manifests/standard-gke-pod.yaml and manifests/substrate-actor-template.yaml): Your Artifact Registry image from Step 1 (e.g., us-central1-docker.pkg.dev/<PROJECT_ID>/agent-demo/stock-analyst:v1).
   
-- BUCKET_PLACEHOLDER (in manifests/substrate-actor-template.yaml): Your Cloud Storage snapshot bucket created by the installer (e.g., ate-snapshots-<PROJECT_ID>-<ZONE>, verifiable via gcloud storage buckets list --filter="name:ate").
+- BUCKET_PLACEHOLDER (in manifests/substrate-actor-template.yaml): Your Cloud Storage snapshot bucket created by the installer (e.g., ate-snapshots-<PROJECT_ID>-<CLUSTER_NAME>-<ZONE>, verifiable via gcloud storage buckets list --filter="name:ate").
 
 - WORKER_IMAGE_PLACEHOLDER & SUBSTRATE_VERSION_PLACEHOLDER (in manifests/substrate-workerpool.yaml): Your ateom-gvisor worker image and Substrate version from the installer (verifiable via kubectl get ds -n ate-system -l app=atelet --show-labels).
 
