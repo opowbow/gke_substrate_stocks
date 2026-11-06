@@ -1,0 +1,30 @@
+# Sample populated manifest (for project: op-agents-001, region: us-central1)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stock-analyst-cold-pod
+  namespace: default
+  labels:
+    app: stock-analyst-cold
+spec:
+  containers:
+  - name: agent
+    image: us-central1-docker.pkg.dev/op-agents-001/agent-demo/stock-analyst:v1
+    ports:
+    - containerPort: 8080
+    env:
+    - name: PORT
+      value: "8080"
+    readinessProbe:
+      httpGet:
+        path: /readyz
+        port: 8080
+      initialDelaySeconds: 1
+      periodSeconds: 1
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
