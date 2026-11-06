@@ -10,6 +10,8 @@ metadata:
     workload: stock-analyst
 spec:
   replicas: 2
+  sandboxClasses:
+    - gvisor
   workerImage: us-docker.pkg.dev/ate-release/ate/ateom-gvisor:v0.1.0
   template:
     nodeSelector:
