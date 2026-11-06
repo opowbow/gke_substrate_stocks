@@ -13,7 +13,7 @@ containers:
   env:
   - name: PORT
     value: "8080"
-  readyz:
+  wakeupProbe:
     httpGet:
       path: /readyz
       port: 8080
