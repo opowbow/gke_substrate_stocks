@@ -10,20 +10,16 @@ containers:
   env:
   - name: PORT
     value: "8080"
-  wakeupProbe:
+  readyz:
     httpGet:
       path: /readyz
       port: 8080
 resources:
   limits:
-  - name: cpu
-    quantity: "1"
-  - name: memory
-    quantity: 512Mi
+    cpu: "1"
+    memory: 512Mi
 sandboxConfig:
   sandboxClass: SANDBOX_CLASS_GVISOR
   configName: gvisor-default
-snapshotConfig:
-  onPause: SNAPSHOT_CONTENT_SCOPE_FULL
-  onCommit: SNAPSHOT_CONTENT_SCOPE_FULL
+snapshotsConfig:
   storageLocation: gs://ate-snapshots-op-agents-001-gke-substrate-001-us-west1-c/stock-analyst/
