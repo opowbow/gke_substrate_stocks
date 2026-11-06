@@ -77,29 +77,22 @@ curl -sSL https://raw.githubusercontent.com/ai-on-gke/substrate-gke/main/install
 ```
 
 #### 3. Deploy the `WorkerPool`, `ActorTemplate`, and Standard GKE Comparison Pod
+Replace the placeholder values in the YAML files under manifests/ with your environment's values (see the samples/ folder for fully populated examples):
+
+- IMAGE_PLACEHOLDER (in manifests/standard-gke-pod.yaml and manifests/substrate-actor-template.yaml): Your Artifact Registry image from Step 1 (e.g., us-central1-docker.pkg.dev/<PROJECT_ID>/agent-demo/stock-analyst:v1).
+  
+- BUCKET_PLACEHOLDER (in manifests/substrate-actor-template.yaml): Your Cloud Storage snapshot bucket created by the installer (e.g., ate-snapshots-<PROJECT_ID>-<ZONE>, verifiable via gcloud storage buckets list --filter="name:ate").
+
+- WORKER_IMAGE_PLACEHOLDER & SUBSTRATE_VERSION_PLACEHOLDER (in manifests/substrate-workerpool.yaml): Your ateom-gvisor worker image and Substrate version from the installer (verifiable via kubectl get ds -n ate-system -l app=atelet --show-labels).
+
+Then apply the manifests:
+
 ```bash
-export SUBSTRATE_VERSION=$(kubectl get ds -n ate-system -l app=atelet \
-    -o jsonpath='{.items[0].metadata.labels.ate\.dev/substrate-version}')
-export WORKER_IMAGE=$(kubectl get deploy -n ate-system \
-    -o jsonpath='{.items[0].spec.template.spec.containers[0].image}' | sed 's/ate-.*/ateom-gvisor:'"${SUBSTRATE_VERSION}"'/')
-export BUCKET_NAME="ate-snapshots-${PROJECT_ID}-${ZONE}"
-
-# Update image placeholder in manifests/standard-gke-pod.yaml
-sed -i "s|IMAGE_PLACEHOLDER|${IMAGE}|g" manifests/standard-gke-pod.yaml
-
-# Apply Agent Substrate WorkerPool
-sed -e "s|IMAGE_PLACEHOLDER|${IMAGE}|g" \
-    -e "s|WORKER_IMAGE_PLACEHOLDER|${WORKER_IMAGE}|g" \
-    -e "s|SUBSTRATE_VERSION_PLACEHOLDER|${SUBSTRATE_VERSION}|g" \
-    -e "s|BUCKET_PLACEHOLDER|${BUCKET_NAME}|g" \
-    manifests/substrate-workerpool.yaml | kubectl apply -f -
-
-# Create atespace and ActorTemplate
-kubectl ate create atespace trading-desk || true
-sed -e "s|IMAGE_PLACEHOLDER|${IMAGE}|g" \
-    -e "s|BUCKET_PLACEHOLDER|${BUCKET_NAME}|g" \
-    manifests/substrate-actor-template.yaml > /tmp/actor-template-resolved.yaml
-kubectl ate create actor-template -f /tmp/actor-template-resolved.yaml
+# 1. Apply the Agent Substrate WorkerPool
+kubectl apply -f manifests/substrate-workerpool.yaml
+# 2. Create the trading-desk atespace and ActorTemplate
+kubectl ate create atespace trading-desk
+kubectl ate create actor-template -f manifests/substrate-actor-template.yaml
 ```
 
 #### 4. Run the Side-by-Side Race
