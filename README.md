@@ -9,10 +9,12 @@ A side-by-side benchmark and visual split-screen demo comparing **Standard GKE S
 **Demo 1 — Session Spin-Up Race (`~380ms` vs. `~8.6s`):**
    - **Standard GKE (`kind: Pod`):** Cold-starts a dedicated gVisor Pod per session (Pod scheduling $\rightarrow$ container image pull/unpack $\rightarrow$ Python 3.12 + FastAPI + `google-adk` initialization), taking **8–12 seconds** before the first stock analysis can run.
    - **GKE Agent Substrate (`WorkerPool` + `ActorTemplate`):** Claims a warm gVisor worker Pod from a `WorkerPool` and restores a golden memory snapshot (`SNAPSHOT_CONTENT_SCOPE_FULL`) where Python, FastAPI, and `google-adk` are already initialized in RAM—waking and analyzing `NVDA` in **~380ms (>20× faster)**.
+     
 **Demo 2 — Idle Suspend, `0ms` Hardware Reuse & Stateful Teleportation:**
    - When Trader Alice pauses to read the `NVDA` chart, Agent Substrate snapshots her process RAM to Cloud Storage in **~96ms** and releases `Worker #1 (10.40.1.08)` back to the `WorkerPool` (**0 CPU / 0 MiB RAM billed while idle**).
    - Trader Bob requests `MSFT` and immediately lands on `Worker #1 (10.40.1.08)` with **0ms hardware provisioning**.
    - While Bob occupies `Worker #1`, Alice asks a follow-up on `GOOGL`. Agent Substrate restores Alice's memory snapshot onto `Worker #2 (10.40.1.12)` in **~390ms**—preserving her in-memory `resident_secret` (`FOLIO-...`) and `portfolio_history` (`['NVDA', 'GOOGL']`) across physical Pods **without an external database**.
+     
 **Demo3 — On-the-Fly Code Execution & Sandbox Isolation Audit (`/run_quant_script`):**
    - Executes a dynamic Python quant formula on the fly (computing `NVDA` Sharpe Ratio) while auditing kernel isolation (`os.uname().release`, `/dev/kmsg`, `AF_PACKET` raw sockets, and mounted KSA tokens)—proving that **Agent Substrate's gVisor sandbox (`SANDBOX_CLASS_GVISOR`)** traps untrusted code inside the `4.4.0` user-space Sentry kernel and hides the GKE node kernel.
 
