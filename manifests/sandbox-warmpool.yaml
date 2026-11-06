@@ -12,7 +12,7 @@ spec:
       runtimeClassName: gvisor
       containers:
       - name: agent
-        image: IMAGE_PLACEHOLDER
+        image: us-central1-docker.pkg.dev/op-agents-001/agent-demo/stock-analyst:v1
         ports:
         - containerPort: 8888
         readinessProbe:
