@@ -12,7 +12,7 @@ spec:
   replicas: 2
   sandboxClasses:
     - name: gvisor
-  workerImage: ghcr.io/agent-substrate/substrate/ateworker:v1.0.0
+  workerImage: ghcr.io/agent-substrate/substrate/ateworker-gvisor:v1.0.0
   template:
     resources:
       requests:
