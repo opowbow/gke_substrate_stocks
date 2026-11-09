@@ -75,9 +75,21 @@ gcloud artifacts repositories create agent-demo \
 gcloud builds submit --tag ${IMAGE} ./agent
 ```
 
-#### 2. Install Agent Substrate on GKE Standard
+#### 2. Install Agent Substrate on GKE Standard and Grant SA permissions
 ```bash
 curl -sSL https://raw.githubusercontent.com/ai-on-gke/substrate-gke/main/install.sh | bash
+
+# Set your cluster name and zone, then grant the node pool Service Account read access to agent-demo
+export CLUSTER_NAME="gke-substrate-001"
+export ZONE="us-west1-c"
+export NODE_SA=$(SA=$(gcloud container node-pools describe substrate-node-pool \
+    --cluster=${CLUSTER_NAME} --zone=${ZONE} --project=${PROJECT_ID} \
+    --format='value(config.serviceAccount)'); \
+    [ "$SA" = "default" ] && echo "$(gcloud projects describe ${PROJECT_ID} --format='value(projectNumber)')-compute@developer.gserviceaccount.com" || echo "$SA")
+gcloud artifacts repositories add-iam-policy-binding agent-demo \
+    --location=${REGION} --project=${PROJECT_ID} \
+    --member="serviceAccount:${NODE_SA}" \
+    --role="roles/artifactregistry.reader"
 ```
 
 #### 3. Deploy the `WorkerPool`, `ActorTemplate`, and Standard GKE Comparison Pod
