@@ -51,6 +51,11 @@ async def analyze_ticker(symbol: str = "NVDA"):
   symbol = symbol.strip().upper()
   current_ip = get_current_ip()
 
+  if PORTFOLIO_STATE["resident_secret"] is None:
+    PORTFOLIO_STATE["resident_secret"] = "FOLIO-" + "".join(
+        random.choices(string.ascii_uppercase + string.digits, k=6)
+    )
+
   quote = json.loads(await get_stock_quote(symbol))
   vol = json.loads(await calculate_volatility(symbol))
 
