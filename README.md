@@ -16,7 +16,7 @@ A side-by-side benchmark and visual split-screen demo comparing **Standard GKE S
    - While Bob occupies `Worker #1`, Alice asks a follow-up on `GOOGL`. Agent Substrate restores Alice's memory snapshot onto `Worker #2 (10.40.1.12)` in **~390ms**—preserving her in-memory `resident_secret` (`FOLIO-...`) and `portfolio_history` (`['NVDA', 'GOOGL']`) across physical Pods **without an external database**.
      
 **Demo 3 — On-the-Fly Code Execution & Sandbox Isolation Audit (`/run_quant_script`):**
-   - Executes a dynamic Python quant formula on the fly (computing `NVDA` Sharpe Ratio) while auditing kernel isolation (`os.uname().release`, `/dev/kmsg`, `AF_PACKET` raw sockets, and mounted KSA tokens)—proving that **Agent Substrate's gVisor sandbox (`SANDBOX_CLASS_GVISOR`)** traps untrusted code inside the `4.4.0` user-space Sentry kernel and hides the GKE node kernel.
+   - Executes a dynamic mathematical Python snippet on the fly , while auditing kernel isolation (`os.uname().release`, `/dev/kmsg`, `AF_PACKET` raw sockets, and mounted KSA tokens)—proving that **Agent Substrate's gVisor sandbox (`SANDBOX_CLASS_GVISOR`)** traps untrusted code inside the `4.4.0` user-space Sentry kernel and hides the GKE node kernel.
 
 ---
 🏗️ Deployed Architecture Overview
