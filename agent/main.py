@@ -32,7 +32,7 @@ PORTFOLIO_STATE = {
     "turn_count": 0,
 }
 
-runner = Runner(agent=root_agent, app_name="financial_analyst")
+runner = InMemoryRunner(agent=root_agent, app_name="financial_analyst")
 
 
 class ChatRequest(BaseModel):
