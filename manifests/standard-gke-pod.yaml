@@ -9,6 +9,7 @@ spec:
   containers:
   - name: agent
     image: us-central1-docker.pkg.dev/op-agents-001/agent-demo/stock-analyst:v1
+    imagePullPolicy: Always
     ports:
     - containerPort: 8080
     env:
