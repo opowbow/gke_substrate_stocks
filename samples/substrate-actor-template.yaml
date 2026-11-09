@@ -6,7 +6,7 @@ workerSelector:
     workload: stock-analyst
 containers:
 - name: agent
-  image: us-central1-docker.pkg.dev/op-agents-001/agent-demo/stock-analyst@sha256:abd8b540adbb4875c8769311ca95f80a52fecf6c21239103c2ce83cc5bde9ad4
+  image: us-central1-docker.pkg.dev/<GCP_PROJECT_ID>/agent-demo/stock-analyst@sha256:abc8b540adbb4875c8769311ca95f80a52fecf6c21239103c2ce83cc5bde9ad4
   env:
   - name: PORT
     value: "8080"
