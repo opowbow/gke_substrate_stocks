@@ -19,6 +19,10 @@ A side-by-side benchmark and visual split-screen demo comparing **Standard GKE S
    - Executes a dynamic Python quant formula on the fly (computing `NVDA` Sharpe Ratio) while auditing kernel isolation (`os.uname().release`, `/dev/kmsg`, `AF_PACKET` raw sockets, and mounted KSA tokens)—proving that **Agent Substrate's gVisor sandbox (`SANDBOX_CLASS_GVISOR`)** traps untrusted code inside the `4.4.0` user-space Sentry kernel and hides the GKE node kernel.
 
 ---
+🏗️ Deployed Architecture Overview
+
+<img width="1332" height="948" alt="image" src="https://github.com/user-attachments/assets/3a06d1da-1d67-4893-95fa-aaf9ba099f6f" />
+
 
 ## 📁 Repository Structure
 
@@ -101,5 +105,5 @@ kubectl ate create actor-template -f manifests/substrate-actor-template.yaml
 kubectl port-forward -n ate-system svc/atenet-router 8080:80 &
 
 # Run the CLI race benchmark
-python3 side_by_side_race.py
+python3 run_demo.py
 ```
