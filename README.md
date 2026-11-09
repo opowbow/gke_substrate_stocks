@@ -1,32 +1,20 @@
-# GKE Agent Substrate vs. Standard GKE: Share Price & Volatility War Room (`gke_substrate_stocks`)
+GKE Agent Substrate vs. Standard GKE: Share Price & Volatility War Room (gke_substrate_stocks)
 
-A side-by-side benchmark and visual split-screen demo comparing **Standard GKE Sandboxed Pods (`runtimeClassName: gvisor`)**, **GKE Agent Sandbox (`SandboxWarmPool`)**, and **GKE Agent Substrate (`WorkerPool` + `ActorTemplate`)** using an identical **Google ADK Financial & Volatility Analyst Agent**.
+A side-by-side benchmark and visual split-screen demo comparing Standard GKE Sandboxed Pods (runtimeClassName: gvisor), GKE Agent Sandbox (SandboxWarmPool), and GKE Agent Substrate (WorkerPool + ActorTemplate) using an identical Google ADK Financial & Volatility Analyst Agent.
 
----
-
-## 🎯 What This Demo Shows
-
-**Demo 1 — Session Spin-Up Race (`~380ms` vs. `~8.6s`):**
-   - **Standard GKE (`kind: Pod`):** Cold-starts a dedicated gVisor Pod per session (Pod scheduling $\rightarrow$ container image pull/unpack $\rightarrow$ Python 3.12 + FastAPI + `google-adk` initialization), taking **8–12 seconds** before the first stock analysis can run.
-   - **GKE Agent Substrate (`WorkerPool` + `ActorTemplate`):** Claims a warm gVisor worker Pod from a `WorkerPool` and restores a golden memory snapshot (`SNAPSHOT_CONTENT_SCOPE_FULL`) where Python, FastAPI, and `google-adk` are already initialized in RAM—waking and analyzing `NVDA` in **~380ms (>20× faster)**.
-     
-**Demo 2 — Idle Suspend, `0ms` Hardware Reuse & Stateful Teleportation:**
-   - When Trader Alice pauses to read the `NVDA` chart, Agent Substrate snapshots her process RAM to Cloud Storage in **~96ms** and releases `Worker #1 (10.40.1.08)` back to the `WorkerPool` (**0 CPU / 0 MiB RAM billed while idle**).
-   - Trader Bob requests `MSFT` and immediately lands on `Worker #1 (10.40.1.08)` with **0ms hardware provisioning**.
-   - While Bob occupies `Worker #1`, Alice asks a follow-up on `GOOGL`. Agent Substrate restores Alice's memory snapshot onto `Worker #2 (10.40.1.12)` in **~390ms**—preserving her in-memory `resident_secret` (`FOLIO-...`) and `portfolio_history` (`['NVDA', 'GOOGL']`) across physical Pods **without an external database**.
-     
-**Demo 3 — On-the-Fly Code Execution & Sandbox Isolation Audit (`/run_quant_script`):**
-   - Executes a dynamic mathematical Python snippet on the fly , while auditing kernel isolation (`os.uname().release`, `/dev/kmsg`, `AF_PACKET` raw sockets, and mounted KSA tokens)—proving that **Agent Substrate's gVisor sandbox (`SANDBOX_CLASS_GVISOR`)** traps untrusted code inside the `4.4.0` user-space Sentry kernel and hides the GKE node kernel.
-
----
+🎯 What This Demo Shows
+Act 1 — Session Spin-Up Race (~380ms vs. ~8.6s):
+Standard GKE (kind: Pod): Cold-starts a dedicated Pod per session (Pod scheduling → container image pull/unpack → Python 3.12 + FastAPI + google-adk initialization), taking 8–12 seconds before the first stock analysis can run.
+GKE Agent Substrate (WorkerPool + ActorTemplate): Claims a warm gVisor worker Pod from a WorkerPool and restores a golden memory snapshot where Python, FastAPI, and google-adk are already initialized in RAM—waking and analyzing NVDA in ~380ms (>20× faster).
+Act 2 — Idle Suspend, 0ms Hardware Reuse & Stateful Teleportation:
+When Trader Alice pauses to read the NVDA chart, Agent Substrate snapshots her process RAM to Cloud Storage in ~96ms and releases Worker #1 (10.40.1.08) back to the WorkerPool (0 CPU / 0 MiB RAM billed while idle).
+Trader Bob requests MSFT and immediately lands on Worker #1 (10.40.1.08) with 0ms hardware provisioning.
+While Bob occupies Worker #1, Alice asks a follow-up on GOOGL. Agent Substrate restores Alice's memory snapshot onto Worker #2 (10.40.1.12) in ~390ms—preserving her in-memory resident_secret (FOLIO-...) and portfolio_history (['NVDA', 'GOOGL']) across physical Pods without an external database.
+Act 3 — On-the-Fly Code Execution & Sandbox Isolation Audit (/run_fly_script):
+Executes a dynamic Python risk script on the fly (computing NVDA Sharpe Ratio) while auditing kernel isolation (os.uname().release, /dev/kmsg, AF_PACKET raw sockets, and mounted KSA tokens)—proving that Agent Substrate's gVisor sandbox traps untrusted code inside the 4.4.0 user-space Sentry kernel and hides the GKE node kernel.
 🏗️ Deployed Architecture Overview
-
-<img width="1332" height="948" alt="image" src="https://github.com/user-attachments/assets/3a06d1da-1d67-4893-95fa-aaf9ba099f6f" />
-
-
-## 📁 Repository Structure
-
-```text
+📁 Repository Structure
+text
 gke_substrate_stocks/
 ├── agent/
 │   ├── agent.py                        # Google ADK Financial Analyst + get_stock_quote & calculate_volatility tools
@@ -34,51 +22,44 @@ gke_substrate_stocks/
 │   ├── requirements.txt                # Python dependencies
 │   └── Dockerfile                      # Container image used across all 3 GKE execution models
 ├── manifests/
-│   ├── standard-gke-pod.yaml           # Model A: Standard GKE on-demand gVisor Pod
+│   ├── standard-gke-pod.yaml           # Model A: Standard GKE on-demand Pod (template with placeholders)
 │   ├── sandbox-warmpool.yaml           # Model B: GKE Agent Sandbox (SandboxTemplate + SandboxWarmPool)
-│   ├── substrate-workerpool.yaml       # Model C: GKE Agent Substrate WorkerPool (ate.dev/v1alpha1)
+│   ├── substrate-workerpool.yaml       # Model C: GKE Agent Substrate WorkerPool (ate.dev/v1)
 │   └── substrate-actor-template.yaml   # Model C: GKE Agent Substrate ActorTemplate (SNAPSHOT_CONTENT_SCOPE_FULL)
+├── samples/
+│   ├── standard-gke-pod.yaml           # Populated sample of standard-gke-pod.yaml
+│   ├── sandbox-warmpool.yaml           # Populated sample of sandbox-warmpool.yaml
+│   ├── substrate-workerpool.yaml       # Populated sample of substrate-workerpool.yaml
+│   └── substrate-actor-template.yaml   # Populated sample of substrate-actor-template.yaml
 ├── dashboard/
 │   ├── index.html                      # Visual Split-Screen War Room UI (works standalone or with server.py)
 │   └── server.py                       # Optional local FastAPI server bridging UI to live GKE cluster
-└── side_by_side_race.py                # Terminal CLI side-by-side benchmark & teleportation proof script
-```
+└── run_demo.py                         # Python demo test script (--test 1, 2, 3, or all)
+🚀 Quickstart
+Option A: Preview the Visual Split-Screen Dashboard Immediately
 
----
+You can open dashboard/index.html directly in any browser, or run the local dashboard server:
 
-## 🚀 Quickstart
-
-### Option A: Preview the Visual Split-Screen Dashboard Immediately
-You can open `dashboard/index.html` directly in any browser, or run the local dashboard server:
-
-```bash
+bash
 python3 dashboard/server.py
 # Open http://localhost:8090
-```
-
-### Option B: Deploy & Run on a Live GKE Cluster
-
-#### 1. Build and Push the Agent Image
-```bash
+Option B: Deploy & Run on a Live GKE Cluster
+1. Build and Push the Agent Image (via Cloud Build)
+bash
 export PROJECT_ID=$(gcloud config get-value project)
 export REGION="us-central1"
-export ZONE="us-central1-a"
 export IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/agent-demo/stock-analyst:v1"
-
-gcloud artifacts repositories create agent-demo \
-    --repository-format=docker \
-    --location=${REGION} || true
-
 gcloud artifacts repositories create agent-demo \
     --repository-format=docker \
     --location=${REGION} || true
 gcloud builds submit --tag ${IMAGE} ./agent
-```
-
-#### 2. Install Agent Substrate on GKE Standard and Grant SA permissions
-```bash
+# Retrieve the @sha256 digest-pinned image URI required by ActorTemplate
+export IMAGE_DIGEST=$(gcloud artifacts docker images describe ${IMAGE} \
+    --format='value(image_summary.fully_qualified_digest)')
+echo "Digest-pinned image: ${IMAGE_DIGEST}"
+2. Install Agent Substrate on GKE Standard
+bash
 curl -sSL https://raw.githubusercontent.com/ai-on-gke/substrate-gke/main/install.sh | bash
-
 # Set your cluster name and zone, then grant the node pool Service Account read access to agent-demo
 export CLUSTER_NAME="gke-substrate-001"
 export ZONE="us-west1-c"
@@ -90,32 +71,34 @@ gcloud artifacts repositories add-iam-policy-binding agent-demo \
     --location=${REGION} --project=${PROJECT_ID} \
     --member="serviceAccount:${NODE_SA}" \
     --role="roles/artifactregistry.reader"
-```
+3. Deploy the WorkerPool, ActorTemplate, and Standard GKE Comparison Pod
 
-#### 3. Deploy the `WorkerPool`, `ActorTemplate`, and Standard GKE Comparison Pod
 Replace the placeholder values in the YAML files under manifests/ with your environment's values (see the samples/ folder for fully populated examples):
 
-- IMAGE_PLACEHOLDER (in manifests/standard-gke-pod.yaml and manifests/substrate-actor-template.yaml): Your Artifact Registry image from Step 1 (e.g., us-central1-docker.pkg.dev/<PROJECT_ID>/agent-demo/stock-analyst:v1).
-  
-- BUCKET_PLACEHOLDER (in manifests/substrate-actor-template.yaml): Your Cloud Storage snapshot bucket created by the installer (e.g., ate-snapshots-<PROJECT_ID>-<CLUSTER_NAME>-<ZONE>, verifiable via gcloud storage buckets list --filter="name:ate").
+IMAGE_DIGEST_PLACEHOLDER (in manifests/substrate-actor-template.yaml): Your @sha256 digest-pinned Artifact Registry image from Step 1 (${IMAGE_DIGEST}).
+IMAGE_PLACEHOLDER (in manifests/standard-gke-pod.yaml): Your Artifact Registry image from Step 1 (${IMAGE}).
+WORKER_IMAGE_PLACEHOLDER (in manifests/substrate-workerpool.yaml): Your ateworker-gvisor image from the installer (e.g., ghcr.io/agent-substrate/substrate/ateworker-gvisor:v1.0.0, verifiable via kubectl get ds atelet -n ate-system -o wide).
 
-- WORKER_IMAGE_PLACEHOLDER & SUBSTRATE_VERSION_PLACEHOLDER (in manifests/substrate-workerpool.yaml): Your ateom-gvisor worker image and Substrate version from the installer (verifiable via kubectl get ds -n ate-system -l app=atelet --show-labels).
+Then apply the manifests and verify that your resources are up and running:
 
-Then apply the manifests:
-
-```bash
+bash
 # 1. Apply the Agent Substrate WorkerPool
 kubectl apply -f manifests/substrate-workerpool.yaml
 # 2. Create the trading-desk atespace and ActorTemplate
 kubectl ate create atespace trading-desk
 kubectl ate create actor-template -f manifests/substrate-actor-template.yaml
-```
-
-#### 4. Run the Side-by-Side Race
-```bash
-# Port-forward the Agent Substrate router in the background
-kubectl port-forward -n ate-system svc/atenet-router 8080:80 &
-
-# Run the CLI race benchmark
-python3 run_demo.py
-```
+# 3. Verify that the WorkerPool Pods and ActorTemplate are Running / Ready
+kubectl get workerpools -n default
+kubectl get pods -n default -o wide
+kubectl ate get atespace 2>/dev/null
+kubectl ate get actor-template -a trading-desk 2>/dev/null
+4. Run the Side-by-Side Tests (Individually or All Together)
+bash
+# Run each risk test individually (automatically creates trader-alice and trader-bob):
+python3 run_demo.py --test 1   # Test 1: The Speed Risk (Cold Pod vs. Warm Worker)
+python3 run_demo.py --test 2   # Test 2: The Idle Risk (Suspend, Reuse & Teleport RAM)
+python3 run_demo.py --test 3   # Test 3: The Isolation Risk (On-the-Fly Code & Kernel Probe)
+# Inspect both trader actors in the trading-desk atespace:
+kubectl ate get actor -a trading-desk 2>/dev/null
+# Or run all three tests in sequence:
+python3 run_demo.py --test all
