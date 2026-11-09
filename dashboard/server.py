@@ -14,6 +14,7 @@ import socket
 import subprocess
 import threading
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -195,6 +196,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
     html_bytes = DASHBOARD_HTML.read_bytes()
     self.send_response(200)
     self.send_header("Content-Type", "text/html; charset=utf-8")
+    self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
     self.send_header("Content-Length", str(len(html_bytes)))
     self.end_headers()
     self.wfile.write(html_bytes)
@@ -297,14 +299,28 @@ class DashboardHandler(BaseHTTPRequestHandler):
       # --- TEST 3: On-the-Fly Code Execution & Kernel Isolation Audit ---
       if parsed.path == "/api/test3":
         sh("kubectl ate create actor trader-alice -a trading-desk --template stock-analyst || true")
-        sub_qdata, _ = call_actor_json(
-            "trader-alice", "/run_quant_script", method="POST", body={"symbol": symbol}
-        )
+        try:
+          sub_qdata, _ = call_actor_json(
+              "trader-alice", "/run_fly_script", method="POST", body={"symbol": symbol}
+          )
+        except urllib.error.HTTPError as e:
+          if e.code == 404:
+            sub_qdata, _ = call_actor_json(
+                "trader-alice", "/run_quant_script", method="POST", body={"symbol": symbol}
+            )
+          else:
+            raise
 
         std_qdata = None
         pod_phase = sh("kubectl get pod stock-analyst-cold-pod -n default -o jsonpath='{.status.phase}' || true")
         if pod_phase == "Running":
-          std_qdata = call_cold_pod_json("/run_quant_script", method="POST", body={"symbol": symbol})
+          try:
+            std_qdata = call_cold_pod_json("/run_fly_script", method="POST", body={"symbol": symbol})
+          except urllib.error.HTTPError as e:
+            if e.code == 404:
+              std_qdata = call_cold_pod_json("/run_quant_script", method="POST", body={"symbol": symbol})
+            else:
+              raise
 
         self._send_json({
             "live_cluster": True,
