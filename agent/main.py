@@ -23,9 +23,7 @@ def get_current_ip() -> str:
 
 # Pure in-memory session state (persisted across suspend/resume by gVisor RAM snapshots)
 PORTFOLIO_STATE = {
-    "resident_secret": "FOLIO-" + "".join(
-        random.choices(string.ascii_uppercase + string.digits, k=6)
-    ),
+    "resident_secret": None,
     "boot_pod_ip": get_current_ip(),
     "last_pod_ip": None,
     "tickers_analyzed": [],
