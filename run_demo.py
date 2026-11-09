@@ -1,6 +1,7 @@
 import argparse
 import contextlib
 import json
+import re
 import socket
 import subprocess
 import time
@@ -21,6 +22,18 @@ def sh(cmd: str) -> str:
 
 def banner(title: str):
   print(f"\n{BOLD}{'=' * 78}\n  {title}\n{'=' * 78}{RESET}")
+
+def get_actor_worker_ip(actor_name: str, fallback_ip: str = "") -> str:
+  out = sh("kubectl ate get actor -a trading-desk 2>/dev/null || true")
+  for line in out.splitlines():
+    if actor_name in line:
+      ips = re.findall(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", line)
+      if ips:
+        return ips[0]
+      for tok in line.split():
+        if tok.startswith("stock-analyst-pool-"):
+          return sh(f"kubectl get pod {tok} -n default -o jsonpath='{{.status.podIP}}' 2>/dev/null || true") or fallback_ip
+  return fallback_ip
 
 
 def get_free_port() -> int:
