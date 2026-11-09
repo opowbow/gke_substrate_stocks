@@ -588,10 +588,10 @@
     async function runTest3Isolation() {
       clearTimers();
       const sym = selectedTicker;
-      document.getElementById('status-banner').textContent = `Running Test 3 (Isolation Risk): Executing /run_quant_script & probing kernel...`;
+      document.getElementById('status-banner').textContent = `Running Test 3 (Isolation Risk): Executing /run_fly_script & probing kernel...`;
 
       if (isLiveCluster) {
-        logEvent(`🛡️ [LIVE TEST 3] Sending on-the-fly Python quant formula (/run_quant_script) to Regular GKE & Agent Substrate...`, 'text-purple-400 font-bold');
+        logEvent(`🛡️ [LIVE TEST 3] Sending on-the-fly Python script (/run_fly_script) to Regular GKE & Agent Substrate...`, 'text-purple-400 font-bold');
         const res = await fetch(`/api/test3?symbol=${sym}`, { method: 'POST' }).then(r => r.json());
         if (res.live_cluster && res.substrate) {
           const sub = res.substrate;
@@ -602,7 +602,7 @@
             const stdAudit = std.sandbox_audit;
             document.getElementById('std-pods-grid').innerHTML = `
               <div class="w-full p-2.5 rounded-lg text-xs font-mono border border-rose-500/40 bg-rose-500/10 text-rose-300 space-y-1">
-                <div>📈 <strong>Quant Output:</strong> ${sym} Sharpe Ratio = ${std.sharpe_ratio} (${std.exec_ms}ms)</div>
+                <div>📈 <strong>Script Output:</strong> ${sym} Sharpe Ratio = ${std.sharpe_ratio} (${std.exec_ms}ms)</div>
                 <div>❌ <strong>Kernel Seen:</strong> ${stdAudit.isolation_boundary}</div>
                 <div>⚠️ <strong>KSA Token Mounted:</strong> ${stdAudit.ksa_token_mounted}</div>
               </div>`;
@@ -630,7 +630,7 @@
       // Offline simulation fallback
       document.getElementById('std-pods-grid').innerHTML = `
         <div class="w-full p-2.5 rounded-lg text-xs font-mono border border-rose-500/40 bg-rose-500/10 text-rose-300 space-y-1">
-          <div>📈 <strong>Quant Output:</strong> ${sym} Sharpe Ratio = 1.84 (4.1ms)</div>
+          <div>📈 <strong>Script Output:</strong> ${sym} Sharpe Ratio = 1.84 (4.1ms)</div>
           <div>❌ <strong>Kernel Seen:</strong> Shared Host Linux Kernel (6.6.x+)</div>
           <div>⚠️ <strong>KSA Token Mounted:</strong> true</div>
         </div>`;
