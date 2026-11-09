@@ -6,7 +6,7 @@ import string
 import time
 from agent import calculate_volatility, get_stock_quote, root_agent
 from fastapi import FastAPI
-from google.adk.runners import Runner
+from google.adk.runners import InMemoryRunner
 from google.genai import types as genai_types
 from pydantic import BaseModel
 import uvicorn
