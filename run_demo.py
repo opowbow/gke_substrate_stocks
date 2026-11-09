@@ -135,6 +135,7 @@ def test_1_speed_risk(router_url: str = ""):
 
   data, substrate_wake_s = call_actor_json("trader-alice", "/analyze?symbol=NVDA", router_url=router_url)
   state = data["session_state_in_ram"]
+  worker_ip = get_actor_worker_ip("trader-alice", state["current_pod_ip"])
 
   print(
       f"  ⚡ Agent Substrate Wake + Analyze in: {BOLD}{GREEN}{substrate_wake_s * 1000:.0f}ms{RESET}"
@@ -145,11 +146,12 @@ def test_1_speed_risk(router_url: str = ""):
       f"30d Annualized Volatility: {BOLD}{data['annualized_volatility_pct']}% ({data['risk_rating']}){RESET}"
   )
   print(
-      f"  🔒 Worker Pod IP: {CYAN}{state['current_pod_ip']}{RESET} | "
+      f"  🔒 Worker Pod IP: {CYAN}{worker_ip}{RESET} | "
       f"RAM Secret: {YELLOW}{state['resident_secret']}{RESET} | "
       f"Portfolio in RAM: {state['portfolio_history']}"
   )
-  return state["current_pod_ip"], state["resident_secret"]
+
+  return worker_ip, state["resident_secret"]
 
 
 def test_2_idle_risk(router_url: str = "", alice_first_ip: str = "", alice_secret: str = ""):
@@ -160,7 +162,7 @@ def test_2_idle_risk(router_url: str = "", alice_first_ip: str = "", alice_secre
     sh("kubectl ate create actor trader-alice -a trading-desk --template stock-analyst >/dev/null 2>&1 || true")
     init_data, _ = call_actor_json("trader-alice", "/analyze?symbol=NVDA", router_url=router_url)
     init_state = init_data["session_state_in_ram"]
-    alice_first_ip = init_state["current_pod_ip"]
+    alice_first_ip = get_actor_worker_ip("trader-alice", init_state["current_pod_ip"])
     alice_secret = init_state["resident_secret"]
 
   print(f"\n{MAGENTA}[1. Alice Goes Idle]{RESET} Suspending 'trader-alice' RAM state to Cloud Storage...")
@@ -174,7 +176,7 @@ def test_2_idle_risk(router_url: str = "", alice_first_ip: str = "", alice_secre
   print(f"\n{MAGENTA}[2. Bob Claims Freed Worker]{RESET} Waking 'trader-bob' on released WorkerPool slot...")
   sh("kubectl ate create actor trader-bob -a trading-desk --template stock-analyst >/dev/null 2>&1 || true")
   bob_data, bob_elapsed_s = call_actor_json("trader-bob", "/analyze?symbol=MSFT", router_url=router_url)
-  bob_ip = bob_data["session_state_in_ram"]["current_pod_ip"]
+  bob_ip = get_actor_worker_ip("trader-bob", bob_data["session_state_in_ram"]["current_pod_ip"])
   print(
       f"  ⚡ Bob analyzed {BOLD}MSFT (${bob_data['price']}){RESET} in "
       f"{BOLD}{GREEN}{bob_elapsed_s * 1000:.0f}ms{RESET} on Worker IP {CYAN}{bob_ip}{RESET}"
@@ -183,11 +185,12 @@ def test_2_idle_risk(router_url: str = "", alice_first_ip: str = "", alice_secre
   print(f"\n{MAGENTA}[3. Alice Returns (Follow-Up on GOOGL)]{RESET} Waking 'trader-alice' while Bob holds {bob_ip}...")
   alice2_data, alice_resume_s = call_actor_json("trader-alice", "/analyze?symbol=GOOGL", router_url=router_url)
   s2 = alice2_data["session_state_in_ram"]
+  alice_second_ip = get_actor_worker_ip("trader-alice", s2["current_pod_ip"])
 
   print(f"  ⚡ Alice resumed + analyzed {BOLD}GOOGL (${alice2_data['price']}){RESET} in {BOLD}{GREEN}{alice_resume_s * 1000:.0f}ms{RESET}")
   print(f"  ✨ {BOLD}STATEFUL TELEPORTATION PROOF:{RESET}")
-  print(f"     • Previous Worker Pod IP: {CYAN}{s2['previous_pod_ip']}{RESET}")
-  print(f"     • Current Worker Pod IP:  {CYAN}{s2['current_pod_ip']}{RESET}")
+  print(f"     • Previous Worker Pod IP: {CYAN}{alice_first_ip}{RESET}")
+  print(f"     • Current Worker Pod IP:  {CYAN}{alice_second_ip}{RESET}")
   print(f"     • Resident RAM Secret:    {YELLOW}{s2['resident_secret']}{RESET} (Matches '{alice_secret}': {s2['resident_secret'] == alice_secret})")
   print(f"     • In-Memory Portfolio:    {GREEN}{s2['portfolio_history']}{RESET} (Both NVDA & GOOGL preserved in RAM without a DB!)")
 
