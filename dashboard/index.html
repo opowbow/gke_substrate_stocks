@@ -1,3 +1,5 @@
+Raw Source: dashboard/index.html
+html
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -17,7 +19,6 @@
 </head>
 <body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-6 select-none min-h-screen">
   <div class="max-w-7xl mx-auto flex flex-col gap-5">
-
     <!-- Header Bar -->
     <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 shadow-sm flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-4">
@@ -38,7 +39,6 @@
           </p>
         </div>
       </div>
-
       <!-- Ticker Selector & Action Buttons -->
       <div class="flex flex-wrap items-center gap-2.5">
         <div class="flex items-center bg-[var(--background)] border border-[var(--border)] rounded-xl p-1 gap-1" id="ticker-bar">
@@ -48,7 +48,6 @@
           <button onclick="selectTicker('AAPL')" data-ticker="AAPL" class="ticker-btn px-3 py-1.5 rounded-lg text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">AAPL</button>
           <button onclick="selectTicker('TSLA')" data-ticker="TSLA" class="ticker-btn px-3 py-1.5 rounded-lg text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">TSLA</button>
         </div>
-
         <button onclick="runTest1Speed()" id="btn-act1" class="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition flex items-center gap-1.5 cursor-pointer">
           <span>⚡ Test 1: Speed Risk</span>
         </button>
@@ -63,10 +62,8 @@
         </button>
       </div>
     </div>
-
     <!-- Split Screen Comparison Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
       <!-- LEFT PANE: REGULAR GKE POD -->
       <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 flex flex-col gap-4 shadow-sm relative overflow-hidden">
         <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
@@ -84,7 +81,6 @@
             <div class="text-2xl font-extrabold font-mono text-amber-400" id="std-timer">0.00s</div>
           </div>
         </div>
-
         <!-- Lifecycle Pipeline Steps -->
         <div class="flex flex-col gap-2 bg-[var(--background)] border border-[var(--border)] rounded-xl p-3.5">
           <div class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] mb-1">
@@ -97,7 +93,6 @@
           <div class="w-full h-1.5 bg-gray-500/20 rounded-full overflow-hidden">
             <div id="std-bar1" class="h-full bg-amber-500 transition-all duration-150" style="width: 0%"></div>
           </div>
-
           <div class="flex items-center justify-between text-xs mt-1">
             <span class="text-[var(--muted-foreground)]">2. Pull &amp; Unpack Container Image Layers</span>
             <span id="std-step2-time" class="font-mono font-semibold text-[var(--muted-foreground)]">—</span>
@@ -105,7 +100,6 @@
           <div class="w-full h-1.5 bg-gray-500/20 rounded-full overflow-hidden">
             <div id="std-bar2" class="h-full bg-amber-500 transition-all duration-150" style="width: 0%"></div>
           </div>
-
           <div class="flex items-center justify-between text-xs mt-1">
             <span class="text-[var(--muted-foreground)]">3. Boot Python 3.12 + FastAPI + Google ADK</span>
             <span id="std-step3-time" class="font-mono font-semibold text-[var(--muted-foreground)]">—</span>
@@ -114,7 +108,6 @@
             <div id="std-bar3" class="h-full bg-amber-500 transition-all duration-150" style="width: 0%"></div>
           </div>
         </div>
-
         <!-- Stock Output Card (Regular GKE) -->
         <div id="std-result-card" class="border border-[var(--border)] bg-[var(--background)] rounded-xl p-4 flex flex-col gap-3 min-h-[195px] justify-center items-center text-center">
           <div class="text-xs text-[var(--muted-foreground)]" id="std-placeholder">
@@ -149,7 +142,6 @@
             </div>
           </div>
         </div>
-
         <!-- Regular GKE Kernel Isolation Box -->
         <div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-3.5 flex flex-col gap-2">
           <div class="flex items-center justify-between text-xs">
@@ -163,7 +155,6 @@
           </div>
         </div>
       </div>
-
       <!-- RIGHT PANE: GKE AGENT SUBSTRATE -->
       <div class="bg-[var(--card)] border-2 border-emerald-500/50 rounded-2xl p-5 flex flex-col gap-4 shadow-sm relative overflow-hidden">
         <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
@@ -184,7 +175,6 @@
             </div>
           </div>
         </div>
-
         <!-- Substrate Wake Pipeline Steps -->
         <div class="flex flex-col gap-2 bg-[var(--background)] border border-[var(--border)] rounded-xl p-3.5">
           <div class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] mb-1">
@@ -197,7 +187,6 @@
           <div class="w-full h-1.5 bg-gray-500/20 rounded-full overflow-hidden">
             <div id="sub-bar1" class="h-full bg-emerald-500 transition-all duration-150" style="width: 0%"></div>
           </div>
-
           <div class="flex items-center justify-between text-xs mt-1">
             <span class="text-[var(--muted-foreground)]">2. Restore gVisor RAM Snapshot from Cloud Storage</span>
             <span id="sub-step2-time" class="font-mono font-semibold text-emerald-400">—</span>
@@ -205,7 +194,6 @@
           <div class="w-full h-1.5 bg-gray-500/20 rounded-full overflow-hidden">
             <div id="sub-bar2" class="h-full bg-emerald-500 transition-all duration-150" style="width: 0%"></div>
           </div>
-
           <div class="flex items-center justify-between text-xs mt-1">
             <span class="text-[var(--muted-foreground)]">3. Execute <code class="font-mono">/analyze</code> with In-Memory Portfolio</span>
             <span id="sub-step3-time" class="font-mono font-semibold text-emerald-400">—</span>
@@ -214,7 +202,6 @@
             <div id="sub-bar3" class="h-full bg-emerald-500 transition-all duration-150" style="width: 0%"></div>
           </div>
         </div>
-
         <!-- Stock Output Card (Agent Substrate) -->
         <div id="sub-result-card" class="border border-[var(--border)] bg-[var(--background)] rounded-xl p-4 flex flex-col gap-3 min-h-[195px] justify-center items-center text-center">
           <div class="text-xs text-[var(--muted-foreground)]" id="sub-placeholder">
@@ -258,7 +245,6 @@
             </div>
           </div>
         </div>
-
         <!-- Shared WorkerPool Slot Visualizer -->
         <div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-3.5 flex flex-col gap-2">
           <div class="flex items-center justify-between text-xs">
@@ -284,7 +270,6 @@
         </div>
       </div>
     </div>
-
     <!-- Live Event & Telemetry Log -->
     <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-sm flex flex-col gap-2">
       <div class="flex items-center justify-between">
@@ -297,9 +282,7 @@
         <div class="text-[var(--muted-foreground)]">Initializing dashboard...</div>
       </div>
     </div>
-
   </div>
-
   <script>
     const FALLBACK_STOCKS = {
       NVDA:  { price: 495.20, vol: 34.18, risk: 'HIGH',     series: [472.1, 480.4, 476.9, 488.3, 495.2] },
@@ -308,7 +291,6 @@
       AAPL:  { price: 224.50, vol: 19.12, risk: 'MODERATE', series: [219.8, 221.0, 220.4, 223.1, 224.5] },
       TSLA:  { price: 242.80, vol: 41.60, risk: 'HIGH',     series: [228.5, 235.0, 231.2, 239.4, 242.8] }
     };
-
     let selectedTicker = 'NVDA';
     let isLiveCluster = false;
     let clusterWorkers = [
@@ -318,12 +300,10 @@
     let simPortfolio = [];
     const simSecret = 'FOLIO-9K4X2P';
     let activeTimers = [];
-
     function clearTimers() {
       activeTimers.forEach(t => clearInterval(t));
       activeTimers = [];
     }
-
     function logEvent(msg, colorClass = 'text-[var(--foreground)]') {
       const log = document.getElementById('event-log');
       const now = new Date();
@@ -333,7 +313,6 @@
       div.textContent = `[${ts}] ${msg}`;
       log.prepend(div);
     }
-
     async function initClusterStatus() {
       const badge = document.getElementById('cluster-mode-badge');
       try {
@@ -359,7 +338,6 @@
           }
         }
       } catch (_) {}
-
       isLiveCluster = false;
       badge.textContent = '🟡 SIMULATION MODE (Run python3 dashboard/server.py for Live GKE)';
       badge.className = 'px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/40';
@@ -367,7 +345,6 @@
       document.getElementById('slot-2-title').textContent = `Worker #2 (${clusterWorkers[1].ip})`;
       logEvent('Running in standalone simulation mode. Run `python3 dashboard/server.py` in Cloud Shell to execute live against your GKE cluster.', 'text-amber-400');
     }
-
     function renderSparkline(svgId, series, strokeColor) {
       const svg = document.getElementById(svgId);
       if (!series || series.length < 2) return;
@@ -388,7 +365,6 @@
         }).join('')}
       `;
     }
-
     function selectTicker(sym) {
       selectedTicker = sym;
       document.querySelectorAll('.ticker-btn').forEach(btn => {
@@ -399,7 +375,6 @@
         }
       });
     }
-
     function populateCardFromData(prefix, sym, price, vol, risk, series, podLabel, secret, portfolio, teleported = false) {
       document.getElementById(`${prefix}-placeholder`).classList.add('hidden');
       document.getElementById(`${prefix}-stock-content`).classList.remove('hidden');
@@ -408,7 +383,6 @@
       document.getElementById(`${prefix}-vol-badge`).textContent = `30d Vol: ${vol}% (${risk})`;
       document.getElementById(`${prefix}-pod-ip`).textContent = podLabel;
       renderSparkline(`${prefix}-sparkline`, series, prefix === 'sub' ? '#10b981' : '#f59e0b');
-
       if (prefix === 'sub') {
         document.getElementById('sub-secret').textContent = secret;
         document.getElementById('sub-portfolio').textContent = JSON.stringify(portfolio);
@@ -417,12 +391,10 @@
         else badge.classList.add('hidden');
       }
     }
-
     // ==================== TEST 1: SPEED RISK ====================
     async function runTest1Speed() {
       clearTimers();
       const sym = selectedTicker;
-
       ['std-bar1', 'std-bar2', 'std-bar3', 'sub-bar1', 'sub-bar2', 'sub-bar3'].forEach(id => {
         document.getElementById(id).style.width = '0%';
       });
@@ -437,14 +409,12 @@
       document.getElementById('sub-placeholder').textContent = `⏳ Waking suspended actor 'trader-alice' on WorkerPool...`;
       document.getElementById('sub-speedup-badge').classList.add('hidden');
       document.getElementById('status-banner').textContent = `Running Test 1 (Speed Risk) for ${sym}...`;
-
       if (isLiveCluster) {
         logEvent(`⚡ [LIVE TEST 1] Starting real side-by-side race on GKE for ${sym} (Cold Pod vs. Agent Substrate)...`, 'text-blue-400 font-bold');
         const tStart = performance.now();
         let stdDone = false;
         let subDone = false;
         let subWakeMs = 0;
-
         const liveTicker = setInterval(() => {
           const sec = ((performance.now() - tStart) / 1000).toFixed(2) + 's';
           if (!stdDone) {
@@ -462,11 +432,9 @@
           if (stdDone && subDone) clearInterval(liveTicker);
         }, 50);
         activeTimers.push(liveTicker);
-
         // Fire both live cluster endpoints concurrently!
         const subPromise = fetch(`/api/test1/substrate?symbol=${sym}`, { method: 'POST' }).then(r => r.json());
         const stdPromise = fetch(`/api/test1/standard?symbol=${sym}`, { method: 'POST' }).then(r => r.json());
-
         subPromise.then(res => {
           subDone = true;
           if (res.live_cluster) {
@@ -476,7 +444,6 @@
             document.getElementById('sub-step1-time').textContent = 'Warm';
             document.getElementById('sub-step2-time').textContent = `${Math.max(1, Math.round(res.wake_ms - res.data.compute_ms))}ms`;
             document.getElementById('sub-step3-time').textContent = `${res.data.compute_ms}ms`;
-
             const d = res.data;
             const s = d.session_state_in_ram;
             populateCardFromData('sub', d.symbol, d.price, d.annualized_volatility_pct, d.risk_rating, d.recent_5d, res.worker.ip, s.resident_secret, s.portfolio_history, false);
@@ -486,7 +453,6 @@
             logEvent(`⚡ [LIVE Agent Substrate] 'trader-alice' woke on ${res.worker.label} & analyzed ${d.symbol} ($${d.price}) in ${res.wake_ms}ms!`, 'text-emerald-400 font-bold');
           }
         });
-
         stdPromise.then(res => {
           stdDone = true;
           if (res.live_cluster) {
@@ -495,7 +461,6 @@
             document.getElementById('std-step1-time').textContent = 'Scheduled';
             document.getElementById('std-step2-time').textContent = 'Pulled';
             document.getElementById('std-step3-time').textContent = `Ready (${res.spinup_s}s)`;
-
             const d = res.data;
             populateCardFromData('std', d.symbol, d.price, d.annualized_volatility_pct, d.risk_rating, d.recent_5d, res.pod_ip, '', [d.symbol], false);
             document.getElementById('std-pods-grid').innerHTML = `
@@ -514,7 +479,6 @@
         });
         return;
       }
-
       // Offline simulation fallback
       if (!simPortfolio.includes(sym)) simPortfolio = [sym];
       const info = FALLBACK_STOCKS[sym];
@@ -542,39 +506,32 @@
       }, 40);
       activeTimers.push(timer);
     }
-
     // ==================== TEST 2: IDLE RISK ====================
     async function runTest2Idle() {
       clearTimers();
       document.getElementById('status-banner').textContent = 'Running Test 2 (Idle Risk): Suspending Alice -> Waking Bob -> Teleporting Alice...';
-
       if (isLiveCluster) {
         logEvent(`💤 [LIVE TEST 2] Suspending 'trader-alice' to Cloud Storage, waking 'trader-bob', then resuming 'trader-alice'...`, 'text-purple-400 font-bold');
         const res = await fetch(`/api/test2?symbol=${selectedTicker}`, { method: 'POST' }).then(r => r.json());
         if (res.live_cluster) {
           logEvent(`💤 [1. Idle Suspend] 'trader-alice' suspended to GCS in ${res.suspend_ms}ms. Freed ${res.first_worker}.`, 'text-purple-400');
           logEvent(`⚡ [2. Worker Reuse] 'trader-bob' analyzed MSFT ($${res.bob_data.price}) in ${res.bob_ms}ms on ${res.bob_worker.label}.`, 'text-emerald-400');
-
           document.getElementById('slot-1-title').textContent = `Worker #1 (${res.bob_worker.ip})`;
           document.getElementById('slot-1-state').textContent = 'ACTIVE (trader-bob)';
           document.getElementById('slot-1-actor').textContent = `${res.bob_worker.pod} | Analyzing MSFT`;
-
           document.getElementById('slot-2-title').textContent = `Worker #2 (${res.alice2_worker.ip})`;
           document.getElementById('slot-2-state').textContent = 'ACTIVE (trader-alice)';
           const s2 = res.alice2_data.session_state_in_ram;
           document.getElementById('slot-2-actor').textContent = `${res.alice2_worker.pod} | RAM: ${s2.resident_secret}`;
-
           document.getElementById('sub-timer').textContent = (res.alice_resume_ms / 1000).toFixed(2) + 's';
           const d2 = res.alice2_data;
           const workerTransition = `${res.first_worker.split(' ')[0]} → ${res.alice2_worker.ip}`;
           populateCardFromData('sub', d2.symbol, d2.price, d2.annualized_volatility_pct, d2.risk_rating, d2.recent_5d, workerTransition, s2.resident_secret, s2.portfolio_history, res.first_worker !== res.alice2_worker.label);
-
           document.getElementById('status-banner').textContent = `Live Test 2 Complete: ${res.first_worker.split(' ')[0]} → ${res.alice2_worker.ip} | RAM Portfolio ${JSON.stringify(s2.portfolio_history)} intact!`;
           logEvent(`✨ [3. STATEFUL TELEPORT] 'trader-alice' resumed on ${res.alice2_worker.label} in ${res.alice_resume_ms}ms! Secret '${s2.resident_secret}' (match=${res.secret_matches}) & portfolio ${JSON.stringify(s2.portfolio_history)} preserved in RAM!`, 'text-emerald-400 font-bold');
           return;
         }
       }
-
       // Offline simulation fallback
       const nextSym = selectedTicker === 'NVDA' ? 'GOOGL' : 'NVDA';
       if (!simPortfolio.includes('NVDA')) simPortfolio.push('NVDA');
@@ -583,20 +540,17 @@
       populateCardFromData('sub', nextSym, info.price, info.vol, info.risk, info.series, '10.12.2.9 → 10.12.3.20', simSecret, simPortfolio, true);
       logEvent(`[Sim] Alice teleported 10.12.2.9 → 10.12.3.20 with ${JSON.stringify(simPortfolio)} in RAM.`, 'text-emerald-400 font-bold');
     }
-
     // ==================== TEST 3: ISOLATION RISK ====================
     async function runTest3Isolation() {
       clearTimers();
       const sym = selectedTicker;
       document.getElementById('status-banner').textContent = `Running Test 3 (Isolation Risk): Executing /run_fly_script & probing kernel...`;
-
       if (isLiveCluster) {
         logEvent(`🛡️ [LIVE TEST 3] Sending on-the-fly Python script (/run_fly_script) to Regular GKE & Agent Substrate...`, 'text-purple-400 font-bold');
         const res = await fetch(`/api/test3?symbol=${sym}`, { method: 'POST' }).then(r => r.json());
         if (res.live_cluster && res.substrate) {
           const sub = res.substrate;
           const subAudit = sub.sandbox_audit;
-
           if (res.standard) {
             const std = res.standard;
             const stdAudit = std.sandbox_audit;
@@ -614,19 +568,19 @@
                 Run Test 1 first so pod/stock-analyst-cold-pod is Running for live comparison.
               </div>`;
           }
-
+          const subBoundary = (subAudit.kernel_release || '').toLowerCase().includes('gvisor')
+            ? `gVisor User-Space Kernel (runsc Sentry — Host Kernel Hidden) (${subAudit.kernel_release})`
+            : subAudit.isolation_boundary;
           document.getElementById('sub-density-metric').textContent = `🛡️ gVisor (${subAudit.kernel_release})`;
           document.getElementById('slot-1-state').textContent = `SANDBOXED (${subAudit.kernel_release})`;
           document.getElementById('slot-1-actor').textContent = `Sharpe=${sub.sharpe_ratio} (${sub.exec_ms}ms) | ${subAudit.kmsg_probe.split('(')[0]}`;
           document.getElementById('slot-2-state').textContent = `KSA Token: ${subAudit.ksa_token_mounted}`;
           document.getElementById('slot-2-actor').textContent = `Raw Socket: ${subAudit.raw_socket_probe.split('(')[0]}`;
-
-          document.getElementById('status-banner').textContent = `Live Test 3 Complete: Agent Substrate isolated untrusted code inside ${subAudit.isolation_boundary}`;
-          logEvent(`✅ [LIVE Agent Substrate] Sharpe=${sub.sharpe_ratio} (${sub.exec_ms}ms) | Kernel=${subAudit.isolation_boundary} | /dev/kmsg=${subAudit.kmsg_probe} | RawSocket=${subAudit.raw_socket_probe} | KSA=${subAudit.ksa_token_mounted}`, 'text-emerald-400 font-bold');
+          document.getElementById('status-banner').textContent = `Live Test 3 Complete: Agent Substrate isolated untrusted code inside ${subBoundary}`;
+          logEvent(`✅ [LIVE Agent Substrate] Sharpe=${sub.sharpe_ratio} (${sub.exec_ms}ms) | Kernel=${subBoundary} | /dev/kmsg=${subAudit.kmsg_probe} | RawSocket=${subAudit.raw_socket_probe} | KSA=${subAudit.ksa_token_mounted}`, 'text-emerald-400 font-bold');
           return;
         }
       }
-
       // Offline simulation fallback
       document.getElementById('std-pods-grid').innerHTML = `
         <div class="w-full p-2.5 rounded-lg text-xs font-mono border border-rose-500/40 bg-rose-500/10 text-rose-300 space-y-1">
@@ -637,7 +591,6 @@
       document.getElementById('sub-density-metric').textContent = '🛡️ Isolated in gVisor (4.4.0)';
       logEvent(`[Sim] Agent Substrate blocked /dev/kmsg & AF_PACKET inside gVisor 4.4.0 Sentry.`, 'text-emerald-400 font-bold');
     }
-
     function resetDemo() {
       clearTimers();
       simPortfolio = [];
@@ -657,7 +610,6 @@
       document.getElementById('status-banner').textContent = 'Status: Ready';
       initClusterStatus();
     }
-
     initClusterStatus();
   </script>
 </body>
