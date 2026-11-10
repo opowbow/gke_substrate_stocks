@@ -30,7 +30,7 @@ def get_current_ip() -> str:
 def run_sandbox_isolation_audit() -> dict:
   """Audits kernel isolation & escape vectors when executing untrusted code on the fly."""
   kernel_release = os.uname().release
-  is_gvisor = kernel_release.startswith("4.4.")
+  is_gvisor = "gvisor" in kernel_release.lower() or kernel_release.startswith("4.4.")
 
   # Probe 1: Attempt to read host kernel ring buffer (/dev/kmsg)
   try:
@@ -55,7 +55,7 @@ def run_sandbox_isolation_audit() -> dict:
   return {
       "kernel_release": kernel_release,
       "isolation_boundary": (
-          "gVisor User-Space Kernel (runsc Sentry — Host Kernel Hidden)"
+          f"gVisor User-Space Kernel (runsc Sentry — Host Kernel Hidden) ({kernel_release})"
           if is_gvisor
           else f"Shared Host Linux Kernel (runc — Node Kernel Exposed) ({kernel_release})"
       ),
@@ -94,9 +94,12 @@ class ChatRequest(BaseModel):
 class FlyScriptRequest(BaseModel):
   symbol: str = "NVDA"
   code: str = (
-      "returns = [0.018, -0.007, 0.024, 0.011, 0.015]\n"
+      "returns = [0.018, -0.024, 0.021, -0.014, 0.011]\n"
       "mean_r = sum(returns) / len(returns)\n"
-      "std_r = (sum((r - mean_r) ** 2 for r in returns) / (len(returns) - 1)) ** 0.5\n"
+      "sq_diff = 0.0\n"
+      "for r in returns:\n"
+      "  sq_diff += (r - mean_r) ** 2\n"
+      "std_r = (sq_diff / (len(returns) - 1)) ** 0.5\n"
       "sharpe_ratio = round((mean_r / std_r) * (252 ** 0.5), 2)"
   )
 
@@ -149,15 +152,15 @@ async def analyze_ticker(symbol: str = "NVDA"):
 async def run_fly_script(req: FlyScriptRequest):
   """Executes an on-the-fly Python risk script and audits the sandbox boundary."""
   t0 = time.perf_counter()
-  local_scope = {"math": math, "symbol": req.symbol}
-  exec(
-      req.code,
-      {"__builtins__": {"sum": sum, "len": len, "round": round, "min": min, "max": max, "abs": abs}},
-      local_scope,
-  )
+  exec_scope = {
+      "__builtins__": {"sum": sum, "len": len, "round": round, "min": min, "max": max, "abs": abs},
+      "math": math,
+      "symbol": req.symbol,
+  }
+  exec(req.code, exec_scope)
   return {
       "symbol": req.symbol,
-      "sharpe_ratio": local_scope.get("sharpe_ratio"),
+      "sharpe_ratio": exec_scope.get("sharpe_ratio"),
       "exec_ms": round((time.perf_counter() - t0) * 1000, 2),
       "sandbox_audit": run_sandbox_isolation_audit(),
   }
