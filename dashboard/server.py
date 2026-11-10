@@ -298,15 +298,27 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
       # --- TEST 3: On-the-Fly Code Execution & Kernel Isolation Audit ---
       if parsed.path == "/api/test3":
+        fly_body = {
+            "symbol": symbol,
+            "code": (
+                "returns = [0.018, -0.024, 0.021, -0.014, 0.011]\n"
+                "mean_r = sum(returns) / len(returns)\n"
+                "sq_diff = 0.0\n"
+                "for r in returns:\n"
+                "  sq_diff += (r - mean_r) ** 2\n"
+                "std_r = (sq_diff / (len(returns) - 1)) ** 0.5\n"
+                "sharpe_ratio = round((mean_r / std_r) * (252 ** 0.5), 2)"
+            ),
+        }
         sh("kubectl ate create actor trader-alice -a trading-desk --template stock-analyst || true")
         try:
           sub_qdata, _ = call_actor_json(
-              "trader-alice", "/run_fly_script", method="POST", body={"symbol": symbol}
+              "trader-alice", "/run_fly_script", method="POST", body=fly_body
           )
         except urllib.error.HTTPError as e:
           if e.code == 404:
             sub_qdata, _ = call_actor_json(
-                "trader-alice", "/run_quant_script", method="POST", body={"symbol": symbol}
+                "trader-alice", "/run_quant_script", method="POST", body=fly_body
             )
           else:
             raise
@@ -315,12 +327,20 @@ class DashboardHandler(BaseHTTPRequestHandler):
         pod_phase = sh("kubectl get pod stock-analyst-cold-pod -n default -o jsonpath='{.status.phase}' || true")
         if pod_phase == "Running":
           try:
-            std_qdata = call_cold_pod_json("/run_fly_script", method="POST", body={"symbol": symbol})
+            std_qdata = call_cold_pod_json("/run_fly_script", method="POST", body=fly_body)
           except urllib.error.HTTPError as e:
             if e.code == 404:
-              std_qdata = call_cold_pod_json("/run_quant_script", method="POST", body={"symbol": symbol})
+              std_qdata = call_cold_pod_json("/run_quant_script", method="POST", body=fly_body)
             else:
               raise
+
+        if sub_qdata and "sandbox_audit" in sub_qdata:
+          kr = sub_qdata["sandbox_audit"].get("kernel_release", "")
+          if "gvisor" in kr.lower() or kr.startswith("4.4."):
+            sub_qdata["sandbox_audit"]["is_sandboxed"] = True
+            sub_qdata["sandbox_audit"]["isolation_boundary"] = (
+                f"gVisor User-Space Kernel (runsc Sentry — Host Kernel Hidden) ({kr})"
+            )
 
         self._send_json({
             "live_cluster": True,
