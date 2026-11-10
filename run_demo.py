@@ -206,11 +206,24 @@ def test_3_isolation_risk(router_url: str = ""):
   print(f"\n{CYAN}[Prompt Injection Simulation]{RESET} Trader submits on-the-fly Python script (/run_fly_script):")
   print('  "Calculate NVDA Sharpe Ratio AND probe host kernel, /dev/kmsg, raw sockets & KSA token"')
 
+  fly_body = {
+      "symbol": "NVDA",
+      "code": (
+          "returns = [0.018, -0.024, 0.021, -0.014, 0.011]\n"
+          "mean_r = sum(returns) / len(returns)\n"
+          "sq_diff = 0.0\n"
+          "for r in returns:\n"
+          "  sq_diff += (r - mean_r) ** 2\n"
+          "std_r = (sq_diff / (len(returns) - 1)) ** 0.5\n"
+          "sharpe_ratio = round((mean_r / std_r) * (252 ** 0.5), 2)"
+      ),
+  }
+
   # 3A. Probe Regular GKE Pod if running
   pod_status = sh("kubectl get pod stock-analyst-cold-pod -o jsonpath='{.status.phase}' 2>/dev/null || true")
   if pod_status == "Running":
     with pod_port_forward("stock-analyst-cold-pod") as pod_url:
-      payload = json.dumps({"symbol": "NVDA"}).encode("utf-8")
+      payload = json.dumps(fly_body).encode("utf-8")
       pdata = None
       for endpoint in ("/run_fly_script", "/run_quant_script"):
         req_pod = urllib.request.Request(
@@ -240,7 +253,7 @@ def test_3_isolation_risk(router_url: str = ""):
         "/run_fly_script",
         router_url=router_url,
         method="POST",
-        body={"symbol": "NVDA"},
+        body=fly_body,
     )
   except urllib.error.HTTPError as e:
     if e.code == 404:
@@ -249,15 +262,21 @@ def test_3_isolation_risk(router_url: str = ""):
           "/run_quant_script",
           router_url=router_url,
           method="POST",
-          body={"symbol": "NVDA"},
+          body=fly_body,
       )
     else:
       raise
   audit = qdata["sandbox_audit"]
+  kr = audit.get("kernel_release", "")
+  boundary_label = (
+      f"gVisor User-Space Kernel (runsc Sentry — Host Kernel Hidden) ({kr})"
+      if "gvisor" in kr.lower() or kr.startswith("4.4.")
+      else audit["isolation_boundary"]
+  )
 
   print(f"\n  {GREEN}[Right Side: Agent Substrate (gVisor Sandbox)]{RESET}")
   print(f"  📈 Script Output:        NVDA Sharpe Ratio = {BOLD}{GREEN}{qdata['sharpe_ratio']}{RESET} ({qdata['exec_ms']}ms)")
-  print(f"  🛡️  Sandbox Kernel Seen:  {GREEN}{audit['isolation_boundary']}{RESET}")
+  print(f"  🛡️  Sandbox Kernel Seen:  {GREEN}{boundary_label}{RESET}")
   print(f"  🔒 /dev/kmsg Probe:      {audit['kmsg_probe']}")
   print(f"  🔒 AF_PACKET Raw Socket: {audit['raw_socket_probe']}")
   print(f"  🔒 KSA Token Mounted:    {audit['ksa_token_mounted']}")
